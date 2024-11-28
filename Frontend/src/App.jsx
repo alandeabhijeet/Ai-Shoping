@@ -8,7 +8,6 @@ import Order from './components/Order';
 import User from './components/User';
 import Ai from './components/Ai';
 import List from './components/List';
-import Detail from './components/Detail';
 
 function App() {
   return (
@@ -20,7 +19,6 @@ function App() {
         <Route path="/user" element={<User/>} />
         <Route path="/ai" element={<Ai/>} />
         <Route path="/list" element={<List/>} />
-        <Route path="/list/:id" element={<Detail/>} />
       </Routes>
     </Router>
   );
