@@ -69,7 +69,6 @@ export default function Navbar() {
               ></i>
             </div>
 
-            {/* Popup */}
             {showPopup && (
               <div className="absolute top-14 right-4 p-2  border bg-white shadow-md rounded-lg w-32 z-10">
                 {isLoggedIn ? (

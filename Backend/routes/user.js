@@ -1,26 +1,12 @@
 let express = require("express");
 let router = express.Router();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-let User = require("../models/user.js")
-let JWT_SECRET = "secret_key"
+let WrapAsync = require("../utils/wrapAsync.js")
+let userCont = require("../controller/User.js")
+
+
 router.route("/signup")
-    .post(async (req, res) => {
-        let { user } = req.body;
-        console.log("hello get data")
-        console.log(user)
-        let newUser = new User(user);
-        await newUser.save();
-        const token = jwt.sign(
-            { id: user._id, email: user.email, role: user.role },
-            JWT_SECRET,
-            { expiresIn: '7d' } 
-        );
+    .post( WrapAsync(userCont.signup));
 
-        res.status(201).json({
-            message: 'User registered successfully',
-            token,
-        });
-    });
-
+router.route("/login")
+    .post(WrapAsync(userCont.login))
 module.exports = router; 

@@ -1,7 +1,10 @@
 import React from 'react'
 import { useForm } from "react-hook-form"
-import { Link } from "react-router-dom";
+import { Link , useNavigate} from "react-router-dom";
+import { setAuthCookie } from "../utils/cookie.js";
 const Login = () => {
+  let navigate = useNavigate()
+  const backendUrl = import.meta.env.VITE_URL;
   const {
     register,
     handleSubmit,
@@ -9,9 +12,34 @@ const Login = () => {
   } = useForm();
 
   async function onSubmit(data) {
-    // Simulating API call
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-    console.log("Submitting the form", data);
+    let user = {
+      name : data.username,
+      password : data.password
+    }
+    try{
+      let responce = await fetch(`${backendUrl}/login` , {
+        method : 'POST' ,
+        headers : {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user })
+      })
+  
+      let responceData = await responce.json()
+      console.log(`responsedata ${responceData}`)
+      if (responceData.token) {
+        console.log("inside token ")
+        setAuthCookie(responceData.token);
+        navigate("/");
+        alert('User logged in successfully!');
+      } else {
+        alert(responceData.message);
+      }
+    }catch(e){
+      console.error('Network error:', e);
+      alert('Network error. Please try again.');
+    }
+    
   }
 
   return (
@@ -28,7 +56,6 @@ const Login = () => {
               {...register('username', { 
                 required: 'Username is required',
                 minLength: { value: 3, message: 'Username must be at least 3 characters long' },
-                maxLength: { value: 6, message: 'Username must be at most 6 characters long' }
               })}
             />
             {errors.username && <p className='text-red-600 text-sm'>{errors.username.message}</p>}
