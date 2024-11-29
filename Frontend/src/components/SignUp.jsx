@@ -1,8 +1,13 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { setAuthCookie, removeAuthCookie, getAuthCookie } from "./utils/cookie.js";
 
 const SignUp = () => {
+  let navigate = useNavigate()
+  const backendUrl = import.meta.env.VITE_URL;
+
   const {
     register,
     handleSubmit,
@@ -10,10 +15,44 @@ const SignUp = () => {
   } = useForm();
 
   async function onSubmit(data) {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-    console.log('Form submitted with data:', data);
+    const user = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      address: {
+        country: data.address.country,
+        state: data.address.state,
+        city: data.address.city,
+        zip: data.address.zip,
+        street: data.address.street,
+      }
+    };
+  
+    try {
+      const response = await fetch(`${backendUrl}/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(user), 
+      });
+  
+      const responseData = await response.json();  
+  
+      if (responseData.token) {
+        setAuthCookie(responseData.token);
+        navigate("/");
+        alert('User registered and logged in successfully!');
+      } else {
+        alert(responseData.message);
+      }
+  
+    } catch (err) {
+      console.error('Network error:', err);
+      alert('Network error. Please try again.');
+    }
   }
+  
 
   return (
     <div className='p-4 w-full min-h-screen flex justify-center items-center bg-gray-700'>
@@ -51,8 +90,6 @@ const SignUp = () => {
             />
             {errors.email && <p className='text-red-600 text-sm'>{errors.email.message}</p>}
           </div>
-
-          {/* Password */}
           <div className='mb-4'>
             <input
               className={`w-full p-3 rounded-md border ${errors.password ? 'border-red-600' : 'border-gray-600'} focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500`}
@@ -65,8 +102,6 @@ const SignUp = () => {
             />
             {errors.password && <p className='text-red-600 text-sm'>{errors.password.message}</p>}
           </div>
-
-          {/* Address Fields */}
           <h3 className='text-xl text-white mb-4'>Address</h3>
           <div className='mb-6'>
             <input

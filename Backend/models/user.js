@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  name: { type: String,  },
+  email: { type: String,   },
+  password: { type: String, },
   role: {
     type: String,
-    default: 'user',  // Default role
+    default: 'user',  
   },
   address: [
     {
@@ -18,17 +18,11 @@ const UserSchema = new mongoose.Schema({
       country: String,
     }
   ],
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-  cart: [
-    {
-      product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-      quantity: { type: Number, required: true },
-    }
-  ],
+  
   createdAt: { type: Date, default: Date.now },
 });
 
-userSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();  
 
   try {
@@ -40,7 +34,7 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-userSchema.methods.comparePassword = async function (password) {
+UserSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);  
 };
 

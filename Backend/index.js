@@ -4,10 +4,11 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 dotenv.config();
-
+const user = require("./routes/user.js");
 const app = express();
 
-app.use(express.json()); 
+app.use(express.json()); // To parse JSON payloads
+app.use(express.urlencoded({ extended: true })); // To parse URL-encoded payloads
 app.use(cookieParser());
 const reacturl = process.env.REACT_URL
 app.use(cors({origin: reacturl, credentials: true}));
@@ -28,7 +29,7 @@ async function main() {
 
 
 const port = 8080;
-
+app.use("/", user);
 app.get("/api",(req,res)=>{
     res.json({ message: 'API is working!' });
 })
