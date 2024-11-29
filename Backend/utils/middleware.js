@@ -17,3 +17,12 @@ module.exports.authenticateToken  = async(req , res , next)=>{
         next(); 
     }); 
 }
+
+module.exports.admin = async(req , res , next)=>{
+    if(req.user.role == "admin"){
+        console.log("Admin only")
+        next(); 
+    }else{
+        res.status(403).json({message : "Resourse restricted"})
+    }
+}

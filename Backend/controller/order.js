@@ -3,7 +3,6 @@ let Order = require("../models/order.js");
 let Product = require("../models/product.js")
 module.exports.seeOrder = async(req,res ,next)=>{
     console.log(req.user)
-    let p = await Product.find({name : "h"})
     let orders = await Order.find({user : req.user.id}).populate({
         path: 'product'
     });

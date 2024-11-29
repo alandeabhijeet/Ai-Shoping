@@ -1,50 +1,134 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { getAuthCookie } from "../utils/cookie.js";
+import { useNavigate } from "react-router-dom";
 
 const List = () => {
+  const navigate = useNavigate();
+
+  const token = getAuthCookie();
+  const backendUrl = import.meta.env.VITE_URL; // Ensure this is set in your environment variables
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1); // State for quantity
+  const [prod, setProd] = useState([]);
+  const customerName = "Anita";
 
-  const products = [
-    {
-      id: 1,
-      name: "Classic White Sneakers",
-      price: 89.99,
-      rating: 4.5,
-      reviews: 128,
-      sizes: ["6", "7", "8", "9", "10", "11"],
-      colors: ["White", "Black", "Gray"],
-      image: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&auto=format&fit=crop&q=60",
-      description:
-        "Premium comfort sneakers perfect for everyday wear. Features breathable mesh upper and cushioned sole.",
-      inStock: true,
-      brand: "Comfort Plus",
-    },
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const response = await fetch(`${backendUrl}/product/list`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-  ];
+        if (!response.ok) {
+          const errorData = await response.json();
+          navigate("/error", {
+            state: { message: errorData.message || "Something went wrong!" },
+          });
+          return;
+        }
 
-  const renderStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <i
-          key={i}
-          className={`fas fa-star ${i <= rating ? "text-yellow-400" : "text-gray-300"}`}
-        ></i>
-      );
+        const allProduct = await response.json();
+        setProd(allProduct.data);
+      } catch (error) {
+        console.error("Fetch error:", error);
+        navigate("/error", { state: { message: "Network error!" } });
+      }
     }
-    return stars;
+
+    fetchProducts();
+  }, [backendUrl, token, navigate]);
+
+  const handleBuyNow = async () => {
+    if (!selectedProduct) {
+      alert("Please select a product first!");
+      return;
+    }
+
+    if (quantity < 1) {
+      alert("Please enter a valid quantity!");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${backendUrl}/buy`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: selectedProduct._id,
+          quantity,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to create Razorpay order");
+        return;
+      }
+
+      const data = await response.json();
+
+      const options = {
+        key: import.meta.env.VITE_RAZERPAY_KEYID, // Razorpay Key ID
+        amount: data.amount,
+        currency: data.currency,
+        name: "ABHIJEET RAMCHANDRA ALANDE", // Company Name
+        description: "Purchase Product",
+        order_id: data.razorpayOrderId, // Razorpay Order ID
+        handler: async (response) => {
+          console.log("Payment successful!", response);
+          alert("Payment successful!");
+
+          // Update payment status to 'Completed'
+          const paymentUpdate = await fetch(`${backendUrl}/buy/completed`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              orderId: data.orderId, // Pass the internal Order ID
+            }),
+          });
+
+          if (!paymentUpdate.ok) {
+            console.error("Failed to update payment status.");
+            alert("Payment completed, but failed to update order status.");
+          }
+        },
+        prefill: {
+          name: customerName,
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error("Error during payment:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-400 p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
+        {prod.map((product) => (
           <div
-            key={product.id}
+            key={product._id}
             onClick={() => setSelectedProduct(product)}
             className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
           >
             <img
-              src={product.image}
+              src={product.images}
               alt={`${product.name} product image`}
               className="w-full h-[300px] object-cover rounded-t-lg"
             />
@@ -52,11 +136,9 @@ const List = () => {
               <h2 className="font-crimson-text text-xl font-bold mb-2">
                 {product.name}
               </h2>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex">{renderStars(Math.round(product.rating))}</div>
-                <span className="text-gray-600">({product.reviews} reviews)</span>
-              </div>
-              <p className="text-green-600 font-bold text-lg">${product.price}</p>
+              <p className="text-green-600 font-bold text-lg">
+                ${product.price}
+              </p>
             </div>
           </div>
         ))}
@@ -69,7 +151,7 @@ const List = () => {
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="md:w-1/2">
                   <img
-                    src={selectedProduct.image}
+                    src={selectedProduct.images}
                     alt={`${selectedProduct.name} detailed view`}
                     className="w-full h-[400px] object-cover rounded-lg"
                   />
@@ -83,48 +165,29 @@ const List = () => {
                       onClick={() => setSelectedProduct(null)}
                       className="text-gray-500 hover:text-gray-700"
                     >
-                      <i className="fas fa-times text-2xl"> </i>
+                      <i className="fas fa-times text-2xl"></i>
                     </button>
-                  </div>
-                  <p className="text-gray-600 mb-4">{selectedProduct.brand}</p>
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex">{renderStars(Math.round(selectedProduct.rating))}</div>
-                    <span className="text-gray-600">
-                      ({selectedProduct.reviews} reviews)
-                    </span>
                   </div>
                   <p className="text-green-600 font-bold text-2xl mb-4">
                     ${selectedProduct.price}
                   </p>
-                  <p className="text-gray-700 mb-4">
-                    {selectedProduct.description}
-                  </p>
                   <div className="mb-4">
-                    <h3 className="font-bold mb-2">Available Sizes:</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedProduct.sizes.map((size) => (
-                        <button
-                          key={size}
-                          className="px-4 py-2 border  border-slate-900 rounded-md hover:bg-gray-100"
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
+                    <label htmlFor="quantity" className="block font-bold mb-2">
+                      Quantity:
+                    </label>
+                    <input
+                      id="quantity"
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      className="px-4 py-2 border rounded-md w-full"
+                      min="1"
+                    />
                   </div>
-                  <div className="mb-6">
-                    <h3 className="font-bold mb-2">Available Colors:</h3>
-                    <div className="flex gap-2">
-                      {selectedProduct.colors.map((color) => (
-                        <div
-                          key={color}
-                          className="w-8 h-8 rounded-full border"
-                          style={{ backgroundColor: color.toLowerCase() }}
-                        ></div>
-                      ))}
-                    </div>
-                  </div>
-                  <button className="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-700">
+                  <button
+                    className="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-700"
+                    onClick={handleBuyNow}
+                  >
                     <i className="fas fa-shopping-cart"></i> Buy Now
                   </button>
                 </div>

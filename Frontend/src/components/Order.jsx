@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Order = () => {
   const [showFlash, setShowFlash] = useState(false);
-  const [orderArr, setOrder] = useState([]); // Initialize as an empty array
+  const [orderArr, setOrder] = useState([]);
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_URL;
   const token = getAuthCookie();
@@ -41,8 +41,8 @@ const Order = () => {
     <div className="p-4 w-full min-h-screen text-stone-50 bg-gray-700 flex flex-col items-center space-y-6">
       {Array.isArray(orderArr) && orderArr.map((oneOrder, index) => (
         <div
-          id={`order-${oneOrder._id || index}`} // Add a unique ID for each div
-          key={oneOrder._id || index} // Use _id or index as fallback
+          id={`order-${oneOrder._id || index}`} 
+          key={oneOrder._id || index} 
           className="w-full bg-gray-600 rounded-lg p-4 shadow-lg shadow-black"
         >
           <div className="flex justify-between items-center mb-4">
@@ -65,7 +65,7 @@ const Order = () => {
           </div>
           <hr className="my-4 border-gray-500" />
           <div className="flex justify-end space-x-4">
-            {oneOrder.paymentStatus === "success" ? (
+            {oneOrder.paymentStatus === "Completed" ? (
               <button className="px-4 py-2 bg-white text-black rounded-lg">Review Order</button>
             ) : (
               <button className="px-4 py-2 bg-red-500 text-white rounded-lg">Cancel Order</button>

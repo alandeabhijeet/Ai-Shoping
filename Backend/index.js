@@ -4,10 +4,12 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 
+
 const user = require("./routes/user.js");
 let MyError = require("./utils/MyError.js");
-let order = require("./routes/order.js")
-
+let order = require("./routes/order.js");
+let product = require("./routes/product.js");
+let buy = require("./routes/buy.js")
 dotenv.config();
 const reacturl = process.env.REACT_URL
 const dburl = process.env.ATLAS_URL;
@@ -36,10 +38,8 @@ app.use("/", user);
 
 
 app.use("/order",order);
-
-app.get("/api",(req,res)=>{
-    res.json({ message: 'API is working!' });
-})
+app.use("/product",product);
+app.use("/buy",buy);
 
 app.all("*", (req, res, next) => {
   console.log("No route middleware ")

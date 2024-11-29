@@ -4,25 +4,51 @@ import { Link, useNavigate } from 'react-router-dom';
 import imageSrc from './assets/Gemini_Generated_Image_3c5ye83c5ye83c5y.jpeg';
 import {removeAuthCookie, getAuthCookie } from "./utils/cookie.js";
 import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'; 
-
-const navigation = [
-  { name: 'Home', to: '/' },
-  { name: 'Order', to: '/order' },
-  { name: 'Ai-Assistance', to: '/ai' },
-];
+import Cookies from 'js-cookie';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+function decodeJWT(token) {
+  try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+          throw new Error('Invalid JWT format');
+      }
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(window.atob(base64));
+
+      return payload;
+  } catch (error) {
+      console.error('Failed to decode JWT:', error);
+      return null;
+  }
+}
+
 export default function Navbar() {
+  const token = getAuthCookie() || {};
+  let role = null; 
+
+  if (token) {
+    const decodedToken = decodeJWT(token);
+    role = decodedToken?.role || null; 
+  }
+
+  const navigation = [
+    { name: 'Home', to: '/' },
+    { name: 'Order', to: '/order' },
+    { name: 'Ai-Assistance', to: '/ai' },
+    ...(role === "admin" ? [{ name: 'Add Product', to: '/add' }] : []),
+  ];
+  
   let navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const token = getAuthCookie();
-    console.log(token)
     setIsLoggedIn(token);  
   }, []);
 
