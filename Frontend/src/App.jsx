@@ -10,6 +10,7 @@ import Ai from './components/Ai';
 import List from './components/List';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
+import Error from './components/Error';
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
         <Route path="/list" element={<List/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+
+        <Route path="/error" element={<Error />} />
       </Routes>
     </Router>
   );

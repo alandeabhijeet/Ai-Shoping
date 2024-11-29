@@ -1,8 +1,24 @@
 import React from 'react'
 import { useForm } from "react-hook-form"
-import { Link , useNavigate} from "react-router-dom";
+import { Link , useNavigate , useLocation } from "react-router-dom";
 import { setAuthCookie } from "../utils/cookie.js";
+import FlashMessage from "./FlashMessage";
+import { useState , useEffect } from 'react';
 const Login = () => {
+  const location = useLocation();
+  const flashMessage = location.state?.flashMessage;
+
+  const [showFlash, setShowFlash] = useState(!!flashMessage);
+
+  useEffect(() => {
+    if (showFlash) {
+      const timer = setTimeout(() => {
+        setShowFlash(false); 
+      }, 2000);
+      return () => clearTimeout(timer); 
+    }
+  }, [showFlash]);
+
   let navigate = useNavigate()
   const backendUrl = import.meta.env.VITE_URL;
   const {
@@ -44,6 +60,12 @@ const Login = () => {
 
   return (
     <div className='p-4 w-full min-h-screen flex justify-center items-center bg-gray-700'>
+      {showFlash && flashMessage && (
+        <FlashMessage
+          message={flashMessage}
+          onClose={() => setShowFlash(false)}
+        />
+      )}
       <div className='w-full max-w-sm bg-gray-800 p-6 rounded-lg shadow-lg'>
         <h2 className='text-center text-3xl font-semibold text-white mb-6'>Login</h2>
         

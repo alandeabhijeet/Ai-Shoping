@@ -3,23 +3,21 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
-dotenv.config();
-const user = require("./routes/user.js");
-const app = express();
-let MyError = require("./utils/MyError.js")
 
-app.use(express.json()); // To parse JSON payloads
-app.use(express.urlencoded({ extended: true })); // To parse URL-encoded payloads
-app.use(cookieParser());
+const user = require("./routes/user.js");
+let MyError = require("./utils/MyError.js");
+let order = require("./routes/order.js")
+
+dotenv.config();
 const reacturl = process.env.REACT_URL
-app.use(cors({origin: reacturl, credentials: true}));
 const dburl = process.env.ATLAS_URL;
 
-main().then(() => {
-    console.log("Connected to MongoDB");
-}).catch(err => {
-    console.error("Connection error", err);
-});
+const app = express();
+
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
+app.use(cookieParser());
+app.use(cors({origin: reacturl, credentials: true}));
 
 async function main() {
   await mongoose.connect(dburl, {
@@ -27,10 +25,18 @@ async function main() {
     useUnifiedTopology: true
   });
 }
-
+main().then(() => {
+    console.log("Connected to MongoDB");
+}).catch(err => {
+    console.error("Connection error", err);
+});
 
 const port = 8080;
 app.use("/", user);
+
+
+app.use("/order",order);
+
 app.get("/api",(req,res)=>{
     res.json({ message: 'API is working!' });
 })

@@ -9,4 +9,5 @@ router.route("/signup")
 
 router.route("/login")
     .post(WrapAsync(userCont.login))
+
 module.exports = router; 
