@@ -1,13 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Disclosure } from '@headlessui/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import imageSrc from './assets/Gemini_Generated_Image_3c5ye83c5ye83c5y.jpeg';
-
-const user = {
-  name: 'Tom Cook',
-  imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-};
+import { setAuthCookie, removeAuthCookie, getAuthCookie } from "./utils/cookie.js";
+import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'; // Arrow icons
 
 const navigation = [
   { name: 'Home', to: '/' },
@@ -20,8 +16,34 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
+  let navigate = useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    // Check if there's an auth token in cookies
+    const token = getAuthCookie();
+    setIsLoggedIn(!!token);  // if token exists, the user is logged in
+  }, []);
+
+  const handleLogin = () => {
+    // // Simulate login (you'd call your API to get the JWT token here)
+    // const fakeToken = 'fake-jwt-token'; // replace with real token from API
+    // setAuthCookie(fakeToken);
+    // setIsLoggedIn(true);
+    setShowPopup(false);
+    navigate("/login")
+  };
+
+  const handleLogout = () => {
+    removeAuthCookie();
+    setIsLoggedIn(false);
+    setShowPopup(false);
+  };
+
+  const togglePopup = () => {
+    setShowPopup(!showPopup);
+  };
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -44,16 +66,37 @@ export default function Navbar() {
             </div>
           </div>
           <div className="ml-4 flex items-center space-x-4">
-            
-            <button
-              type="button"
-              className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white"
-            >
-              <BellIcon className="size-6" aria-hidden="true" />
-            </button>
             <div className="ml-3">
-              <img alt="" src={user.imageUrl} className="size-8 rounded-full" />
+              <i
+                className="fas fa-user text-2xl text-gray-500 cursor-pointer"
+                onClick={togglePopup}
+              ></i>
             </div>
+
+            {/* Popup */}
+            {showPopup && (
+              <div className="absolute top-14 right-4 p-2  border bg-white shadow-md rounded-lg w-32 z-10">
+                {isLoggedIn ? (
+                  <div className="flex flex-col items-center space-y-2">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center text-red-500 hover:text-red-700 transition-all"
+                    >
+                      <FaSignOutAlt className="mr-2" /> Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-2">
+                    <button
+                      onClick={handleLogin}
+                      className="flex items-center text-gray-800 hover:text-gray-700 transition-all"
+                    >
+                      <FaSignInAlt className="mr-2" /> Login
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

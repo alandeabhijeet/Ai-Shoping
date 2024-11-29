@@ -2,12 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-
+const cookieParser = require('cookie-parser');
 dotenv.config();
 
 const app = express();
 
 app.use(express.json()); 
+app.use(cookieParser());
 const reacturl = process.env.REACT_URL
 app.use(cors({origin: reacturl, credentials: true}));
 const dburl = process.env.ATLAS_URL;

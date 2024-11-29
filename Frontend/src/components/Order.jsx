@@ -22,7 +22,7 @@ const Order = () => {
         </div>
         <hr className="my-4 border-gray-500" />
         <div className="flex justify-end space-x-4">
-          <button className="px-4 py-2 bg-white text-black rounded-lg">Track Order</button>
+          <button className="px-4 py-2 bg-white text-black rounded-lg">Review Order</button>
           <button className="px-4 py-2 bg-black text-white rounded-lg">Buy Again</button>
           <button className="px-4 py-2 bg-red-500 text-white rounded-lg">Cancel Order</button>
         </div>
