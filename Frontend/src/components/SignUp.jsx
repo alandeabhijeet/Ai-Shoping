@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { setAuthCookie, removeAuthCookie, getAuthCookie } from "./utils/cookie.js";
+import { setAuthCookie, removeAuthCookie, getAuthCookie } from "../utils/cookie.js";
 
 const SignUp = () => {
   let navigate = useNavigate()
@@ -34,7 +34,7 @@ const SignUp = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(user), 
+        body: JSON.stringify({ user })
       });
   
       const responseData = await response.json();  

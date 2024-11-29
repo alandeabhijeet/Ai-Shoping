@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Disclosure } from '@headlessui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import imageSrc from './assets/Gemini_Generated_Image_3c5ye83c5ye83c5y.jpeg';
-import { setAuthCookie, removeAuthCookie, getAuthCookie } from "./utils/cookie.js";
-import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'; // Arrow icons
+import {removeAuthCookie, getAuthCookie } from "./utils/cookie.js";
+import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'; 
 
 const navigation = [
   { name: 'Home', to: '/' },
@@ -21,16 +21,12 @@ export default function Navbar() {
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    // Check if there's an auth token in cookies
     const token = getAuthCookie();
-    setIsLoggedIn(!!token);  // if token exists, the user is logged in
+    console.log(token)
+    setIsLoggedIn(token);  
   }, []);
 
   const handleLogin = () => {
-    // // Simulate login (you'd call your API to get the JWT token here)
-    // const fakeToken = 'fake-jwt-token'; // replace with real token from API
-    // setAuthCookie(fakeToken);
-    // setIsLoggedIn(true);
     setShowPopup(false);
     navigate("/login")
   };
