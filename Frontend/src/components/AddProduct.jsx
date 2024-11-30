@@ -10,7 +10,7 @@ const AddProduct = () => {
         MEN: 'men',
         WOMEN: 'women',
         BAG: 'bag',
-        PERFUMES: 'perfumes',
+        BEAUTY: 'beauty',
     };
 
     const {
@@ -71,7 +71,7 @@ const AddProduct = () => {
                             <option value={CATEGORIES.MEN}>Men</option>
                             <option value={CATEGORIES.WOMEN}>Women</option>
                             <option value={CATEGORIES.BAG}>Bag</option>
-                            <option value={CATEGORIES.PERFUMES}>Perfumes</option>
+                            <option value={CATEGORIES.BEAUTY}>Beauty</option>
                         </select>
                         {errors.category && <p className='text-red-600 text-sm'>{errors.category.message}</p>}
                     </div>

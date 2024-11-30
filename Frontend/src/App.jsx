@@ -12,7 +12,7 @@ import Login from './components/Login';
 import SignUp from './components/SignUp';
 import Error from './components/Error';
 import AddProduct from './components/AddProduct';
-
+import Review from './components/Review';
 function App() {
   return (
     <Router>
@@ -26,6 +26,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/add" element={<AddProduct />} />
+        <Route path="/list/review" element={<Review />} />
         <Route path="/error" element={<Error />} />
       </Routes>
     </Router>

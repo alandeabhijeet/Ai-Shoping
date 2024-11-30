@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { getAuthCookie } from "../utils/cookie.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , useLocation  } from "react-router-dom";
 
 const List = () => {
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const searchQuery = query.get("q");
   const navigate = useNavigate();
-
   const token = getAuthCookie();
-  const backendUrl = import.meta.env.VITE_URL; // Ensure this is set in your environment variables
+  const backendUrl = import.meta.env.VITE_URL;
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [quantity, setQuantity] = useState(1); // State for quantity
-  const [prod, setProd] = useState([]);
+  const [quantity, setQuantity] = useState(1);
+  const [products, setProducts] = useState([]);
   const customerName = "Anita";
 
   useEffect(() => {
-    async function fetchProducts() {
+    const fetchProducts = async () => {
       try {
-        const response = await fetch(`${backendUrl}/product/list`, {
+        const response = await fetch(`${backendUrl}/product/list?q=${searchQuery}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -31,16 +33,27 @@ const List = () => {
           return;
         }
 
-        const allProduct = await response.json();
-        setProd(allProduct.data);
+        const productList = await response.json();
+        setProducts(productList.data);
       } catch (error) {
         console.error("Fetch error:", error);
         navigate("/error", { state: { message: "Network error!" } });
       }
-    }
+    };
 
     fetchProducts();
   }, [backendUrl, token, navigate]);
+
+  const renderStars = (rating) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <i
+        key={i}
+        className={`fas fa-star ${
+          i < rating ? "text-yellow-400" : "text-gray-300"
+        }`}
+      ></i>
+    ));
+  };
 
   const handleBuyNow = async () => {
     if (!selectedProduct) {
@@ -48,7 +61,7 @@ const List = () => {
       return;
     }
 
-    if (quantity < 1) {
+    if (isNaN(quantity) || quantity < 1) {
       alert("Please enter a valid quantity!");
       return;
     }
@@ -75,39 +88,33 @@ const List = () => {
       const data = await response.json();
 
       const options = {
-        key: import.meta.env.VITE_RAZERPAY_KEYID, // Razorpay Key ID
+        key: import.meta.env.VITE_RAZERPAY_KEYID,
         amount: data.amount,
         currency: data.currency,
-        name: "ABHIJEET RAMCHANDRA ALANDE", // Company Name
+        name: "ABHIJEET RAMCHANDRA ALANDE",
         description: "Purchase Product",
-        order_id: data.razorpayOrderId, // Razorpay Order ID
+        order_id: data.razorpayOrderId,
         handler: async (response) => {
-          console.log("Payment successful!", response);
           alert("Payment successful!");
+          try {
+            const paymentUpdate = await fetch(`${backendUrl}/buy/completed`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ orderId: data.orderId }),
+            });
 
-          // Update payment status to 'Completed'
-          const paymentUpdate = await fetch(`${backendUrl}/buy/completed`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              orderId: data.orderId, // Pass the internal Order ID
-            }),
-          });
-
-          if (!paymentUpdate.ok) {
-            console.error("Failed to update payment status.");
-            alert("Payment completed, but failed to update order status.");
+            if (!paymentUpdate.ok) {
+              alert("Payment completed, but failed to update order status.");
+            }
+          } catch (error) {
+            console.error("Error updating payment status:", error);
           }
         },
-        prefill: {
-          name: customerName,
-        },
-        theme: {
-          color: "#3399cc",
-        },
+        prefill: { name: customerName },
+        theme: { color: "#3399cc" },
       };
 
       const razorpay = new window.Razorpay(options);
@@ -121,7 +128,7 @@ const List = () => {
   return (
     <div className="min-h-screen bg-gray-400 p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {prod.map((product) => (
+        {products.map((product) => (
           <div
             key={product._id}
             onClick={() => setSelectedProduct(product)}
@@ -136,9 +143,11 @@ const List = () => {
               <h2 className="font-crimson-text text-xl font-bold mb-2">
                 {product.name}
               </h2>
-              <p className="text-green-600 font-bold text-lg">
-                ${product.price}
-              </p>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex">{renderStars(Math.round(product.AvgRating))}</div>
+                <span className="text-gray-600">({product.ratingCount} reviews)</span>
+              </div>
+              <p className="text-green-600 font-bold text-lg">${product.price}</p>
             </div>
           </div>
         ))}
@@ -168,9 +177,18 @@ const List = () => {
                       <i className="fas fa-times text-2xl"></i>
                     </button>
                   </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex">
+                      {renderStars(Math.round(selectedProduct.AvgRating))}
+                    </div>
+                    <span className="text-gray-600">
+                      ({selectedProduct.ratingCount} reviews)
+                    </span>
+                  </div>
                   <p className="text-green-600 font-bold text-2xl mb-4">
                     ${selectedProduct.price}
                   </p>
+                  <p className="text-gray-700 mb-4">{selectedProduct.description}</p>
                   <div className="mb-4">
                     <label htmlFor="quantity" className="block font-bold mb-2">
                       Quantity:
@@ -179,7 +197,7 @@ const List = () => {
                       id="quantity"
                       type="number"
                       value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
+                      onChange={(e) => setQuantity(Number(e.target.value))}
                       className="px-4 py-2 border rounded-md w-full"
                       min="1"
                     />

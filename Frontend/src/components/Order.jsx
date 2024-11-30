@@ -9,6 +9,12 @@ const Order = () => {
   const backendUrl = import.meta.env.VITE_URL;
   const token = getAuthCookie();
 
+
+  function onSubmitReview (product_id, order_id, user_id , paymentStatus){
+    navigate("/list/review", {
+      state: { product_id, order_id, user_id , paymentStatus},
+    })
+  }
   useEffect(() => {
     async function fetchData() {
       try {
@@ -66,11 +72,11 @@ const Order = () => {
           <hr className="my-4 border-gray-500" />
           <div className="flex justify-end space-x-4">
             {oneOrder.paymentStatus === "Completed" ? (
-              <button className="px-4 py-2 bg-white text-black rounded-lg">Review Order</button>
+              <button className="px-4 py-2 bg-white text-black rounded-lg" onClick={ ()=>onSubmitReview( oneOrder.product._id , oneOrder._id ,oneOrder.user , oneOrder.paymentStatus)}>Review Order</button>
             ) : (
               <button className="px-4 py-2 bg-red-500 text-white rounded-lg">Cancel Order</button>
             )}
-            {oneOrder.stock > 0 && (
+            {oneOrder.stock >= 1 && (
               <button className="px-4 py-2 bg-black text-white rounded-lg">Buy Again</button>
             )}
           </div>

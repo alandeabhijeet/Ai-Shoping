@@ -3,8 +3,13 @@ import neArri from "../assets/newArri.png";
 import custfav from "../assets/custfav.png";
 import trading from "../assets/trading.png";
 import toprated from "../assets/toprated.png";
+import { useNavigate } from "react-router-dom";
 
 function HomeSlider() {
+  let navigate = useNavigate()
+  let route = (s)=>{
+    navigate(`/list?q=${s}`);
+  }
   const [activeIndex, setActiveIndex] = useState(0);
 
   const categories = [
@@ -92,7 +97,7 @@ function HomeSlider() {
                             {category.description}
                           </p>
                           <button
-                            onClick={() => (window.location.href = "/")}
+                            onClick={() => route(category.name)}
                             className="bg-white text-black px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
                           >
                             Explore Collection

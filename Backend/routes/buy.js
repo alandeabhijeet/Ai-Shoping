@@ -59,6 +59,7 @@ router.post(
       await order.save();
 
       product.stock -= quantity;
+      product.buy += quantity;
       await product.save();
 
       res.status(201).json({
