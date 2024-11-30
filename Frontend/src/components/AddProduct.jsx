@@ -1,10 +1,11 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { getAuthCookie } from '../utils/cookie';
-
+import { useNavigate } from 'react-router-dom';
 const backendUrl = import.meta.env.VITE_URL;
 
 const AddProduct = () => {
+    navigate = useNavigate("/")
     const token = getAuthCookie();
     const CATEGORIES = {
         MEN: 'men',
@@ -42,7 +43,7 @@ const AddProduct = () => {
             console.log(errorData.message || 'Something went wrong!');
             return;
         }
-
+        navigate("/")
         console.log('Product added successfully');
     }
 

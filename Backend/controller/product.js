@@ -57,7 +57,7 @@ module.exports.list = async (req, res, next) => {
     });
     console.log("hello")
     if (q == "New Arrivals") {
-        products.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); 
+        products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); 
     } else if (q == "Top-rated Products") {
         products.sort((a, b) => b.AvgRating - a.AvgRating);
     }else if (q === "Customer%20Favorites") {

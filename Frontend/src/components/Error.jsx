@@ -7,6 +7,7 @@ const Error = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>Error</h1>
+      <br></br>
       <p>{message}</p>
     </div>
   );
