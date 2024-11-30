@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const backendUrl = import.meta.env.VITE_URL;
 
 const AddProduct = () => {
-    navigate = useNavigate("/")
+    let navigate = useNavigate("/")
     const token = getAuthCookie();
     const CATEGORIES = {
         MEN: 'men',

@@ -39,7 +39,6 @@ export default function Navbar() {
   const navigation = [
     { name: 'Home', to: '/' },
     { name: 'Order', to: '/order' },
-    // { name: 'Ai-Assistance', to: '/ai' },
     ...(role === "admin" ? [{ name: 'Add Product', to: '/add' }] : []),
   ];
   
