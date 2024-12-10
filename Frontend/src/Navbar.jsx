@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import imageSrc from './assets/Gemini_Generated_Image_3c5ye83c5ye83c5y.jpeg';
 import {removeAuthCookie, getAuthCookie } from "./utils/cookie.js";
 import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'; 
-import Cookies from 'js-cookie';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -39,6 +38,7 @@ export default function Navbar() {
   const navigation = [
     { name: 'Home', to: '/' },
     { name: 'Order', to: '/order' },
+    { name: 'Ai assistant', to: '/ai' },
     ...(role === "admin" ? [{ name: 'Add Product', to: '/add' }] : []),
   ];
   

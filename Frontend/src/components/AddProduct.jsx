@@ -27,25 +27,59 @@ const AddProduct = () => {
         formData.append('description', data.description);
         formData.append('price', data.price);
         formData.append('stock', data.stock);
-        console.log(data.image)
-        if (data.image[0]) formData.append('image', data.image[0]); 
-
-        let response = await fetch(`${backendUrl}/product`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-            body: formData, 
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.log(errorData.message || 'Something went wrong!');
-            return;
+        if (data.image[0]) formData.append('image', data.image[0]);
+    
+        try {
+            const server1Response = await fetch(`${backendUrl}/product`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData,
+            });
+    
+            if (!server1Response.ok) {
+                const errorData = await server1Response.json();
+                console.error('Error adding product to Server 1:', errorData.message || 'Unknown error');
+                return;
+            }
+    
+            const server1Result = await server1Response.json();
+            console.log('Product added to Server 1:', server1Result);
+    
+            const productId = server1Result.product._id; 
+            const aiData = {
+                id: productId, 
+                name: data.name,
+                category: data.category,
+                description: data.description,
+                price: data.price,
+                stock: data.stock,
+            };
+    
+            const server2Response = await fetch(`http://127.0.0.1:5000/ai/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(aiData),
+            });
+    
+            if (!server2Response.ok) {
+                const errorData = await server2Response.json();
+                console.error('Error adding product to Server 2:', errorData.message || 'Unknown error');
+                return;
+            }
+    
+            const server2Result = await server2Response.json();
+            console.log('Product added to Server 2:', server2Result);
+    
+            navigate('/');
+        } catch (error) {
+            console.error('Error during submission:', error);
         }
-        navigate("/")
-        console.log('Product added successfully');
     }
+    
 
     return (
         <div className='p-4 w-full min-h-screen flex justify-center items-center bg-gray-700'>

@@ -10,6 +10,7 @@ let MyError = require("./utils/MyError.js");
 let order = require("./routes/order.js");
 let product = require("./routes/product.js");
 let buy = require("./routes/buy.js")
+let ai = require("./routes/ai.js")
 dotenv.config();
 const reacturl = process.env.REACT_URL
 const dburl = process.env.ATLAS_URL;
@@ -40,7 +41,7 @@ app.use("/", user);
 app.use("/order",order);
 app.use("/product",product);
 app.use("/buy",buy);
-
+app.use("/ai", ai);
 app.all("*", (req, res, next) => {
   console.log("No route middleware ")
   next(new MyError(404, "Route Not Exists"));
