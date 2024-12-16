@@ -30,3 +30,17 @@ This project integrates **GPT-2** with **MongoDB Atlas Search** to build a **Ret
   - Retrieves relevant product information
   - Generates context-aware AI responses
 - Embedding storage and retrieval with MongoDB
+
+## Key Features
+- New Arrivals, Top Rated, Trending, and Customer Favorites sections
+- Order management system
+- User reviews and ratings
+- Login/Signup system
+- **AI Assistance (using GPT-2 and RAG)**
+  - Retrieves relevant product information
+  - Generates context-aware AI responses
+- Embedding storage and retrieval with MongoDB
+
+## Video Demonstration
+[![Watch the video](https://img.youtube.com/vi/k8Ii0oXLeV0/0.jpg)](https://www.youtube.com/watch?v=k8Ii0oXLeV0)
+
